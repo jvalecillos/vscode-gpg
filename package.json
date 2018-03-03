@@ -1,0 +1,66 @@
+{
+    "name": "gpg",
+    "displayName": "GPG",
+    "description": "GPG Encrypter/Decrypter",
+    "version": "0.0.1",
+    "publisher": "jvalecillos",
+    "author": {
+        "name": "Jose Valecillos"
+    },
+    "homepage": "https://github.com/jvalecillos/vscode-gpg",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jvalecillos/vscode-gpg/vscode-markdown"
+    },
+    "icon": "images/icon.png",
+    "bugs": {
+        "url": "https://github.com/jvalecillos/vscode-gpg/issues"
+    },
+    "engines": {
+        "vscode": "^1.17.0"
+    },
+    "keywords": [
+        "gpg",
+        "gnupg",
+        "pgp",
+        "encrypt",
+        "decrypt"
+    ],
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:extension.encrypt",
+        "onCommand:extension.decrypt"
+    ],
+    "main": "./src/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.encrypt",
+                "title": "GPG: Encrypt"
+            },
+            {
+                "command": "extension.decrypt",
+                "title": "GPG: Decrypt"
+            }
+        ]
+    },
+    "scripts": {
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.6",
+        "eslint": "^4.11.0",
+        "@types/node": "^7.0.43",
+        "@types/mocha": "^2.2.42"
+    },
+    "dependencies": {
+        "gpg": "^0.6.0",
+        "tmp": "0.0.33",
+        "fs": "0.0.1-security"
+    }
+}
