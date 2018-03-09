@@ -2,7 +2,7 @@
     "name": "gpg",
     "displayName": "GPG",
     "description": "GPG Encrypter/Decrypter",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "jvalecillos",
     "author": {
         "name": "Jose Valecillos"
@@ -11,7 +11,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/jvalecillos/vscode-gpg/vscode-markdown"
+        "url": "https://github.com/jvalecillos/vscode-gpg"
     },
     "icon": "images/icon.png",
     "bugs": {
