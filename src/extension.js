@@ -43,12 +43,23 @@ function activate(context) {
             prompt: 'Provide your passphrase',
             placeHolder: 'My passphrase',
             password: true,
-        }).then(passphrase =>
-            gpg.decrypt(text, passphrase)
-        ).then(decrypted => {
-            editor.edit(editBuilder => editBuilder.replace(selection, decrypted));
-            vscode.window.setStatusBarMessage('GPG Decrypted!', 2000);
-        });
+            validateInput: value => (value.length == 0) ? "Passphrase cannot be empty" : null
+        }).then(
+            passphrase => {
+                if (passphrase === undefined || passphrase.length === 0) {
+                    // Hitting Enter gets to here, which is not expected
+                    vscode.window.setStatusBarMessage('No passphrase provided', 2000);
+                    return Promise.reject("No passphrase provided")
+                }
+                return gpg.decrypt(text, passphrase)
+            }
+        ).then(
+            decrypted => {
+                editor.edit(editBuilder => editBuilder.replace(selection, decrypted));
+                vscode.window.setStatusBarMessage('GPG Decrypted!', 2000);
+            },
+            error => { console.error("unable to decrypt text", error) }
+        );
     });
 
     // register commands
