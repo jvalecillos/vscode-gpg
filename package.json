@@ -2,7 +2,7 @@
     "name": "gpg",
     "displayName": "GPG",
     "description": "GPG Encrypter/Decrypter",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "publisher": "jvalecillos",
     "author": {
         "name": "Jose Valecillos"
@@ -52,11 +52,11 @@
         "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.6",
-        "eslint": "^4.11.0",
+        "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
-        "@types/mocha": "^2.2.42"
+        "eslint": "^4.11.0",
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.18"
     },
     "dependencies": {
         "gpg": "^0.6.0",
