@@ -11,26 +11,25 @@ function activate(context) {
         let selection = textEditor.selection;
         let text = textEditor.document.getText(selection);
 
-        gpg.listKeys().then(function (publicKeys) {
-            return publicKeys.map(function (currentValue) {
-                return {
+        gpg.listKeys().then(
+            publicKeys => publicKeys.map(
+                /** @param {gpg.PublicKey} currentValue */
+                currentValue => ({
                     label: `<${currentValue.email}>`,
                     description: `(${currentValue.key_id})`,
                     detail: currentValue.name,
                     key_id: currentValue.key_id,
                     email: currentValue.email,
-                };
-            });
-        }).then(
+                })
+            )
+        ).then(
             options => vscode.window.showQuickPick(options, { placeHolder: "Select recipient" })
         ).then(
             /** @param {{email: string}} selected gpg key option */
             selected => gpg.encrypt(text, selected.email)
         ).then(encrypted => {
 
-            textEditor.edit(function (edit) {
-                edit.replace(selection, encrypted)
-            });
+            textEditor.edit(edit => edit.replace(selection, encrypted));
 
             vscode.window.setStatusBarMessage('GPG Encrypted!', 2000);
         }).catch(err => console.error(err));

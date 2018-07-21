@@ -33,8 +33,7 @@ function listKeys() {
 }
 
 /**
-  @typedef PublicKey
-  @type {object}
+  @typedef {object} PublicKey
   @property {string} key_id Key short id
   @property {string} fingerprint Key fingerprint
   @property {string} email Key ownner email
