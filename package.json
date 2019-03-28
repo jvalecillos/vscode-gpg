@@ -54,9 +54,9 @@
     "devDependencies": {
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
-        "eslint": "^4.11.0",
+        "eslint": "^5.15.3",
         "typescript": "^2.6.1",
-        "vscode": "^1.1.18"
+        "vscode": "^1.1.33"
     },
     "dependencies": {
         "gpg": "^0.6.0",
