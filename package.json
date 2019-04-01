@@ -2,7 +2,7 @@
     "name": "gpg",
     "displayName": "GPG",
     "description": "GPG Encrypter/Decrypter",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "publisher": "jvalecillos",
     "author": {
         "name": "Jose Valecillos"
@@ -39,13 +39,31 @@
         "commands": [
             {
                 "command": "extension.encrypt",
-                "title": "GPG: Encrypt"
+                "title": "Encrypt",
+                "category": "GPG",
+                "when": "editorHasSelection"
             },
             {
                 "command": "extension.decrypt",
-                "title": "GPG: Decrypt"
+                "title": "Decrypt",
+                "category": "GPG",
+                "when": "editorHasSelection"
             }
-        ]
+        ],
+        "menus": {
+            "editor/context": [
+                {
+                    "when": "editorTextFocus && editorHasSelection",
+                    "command": "extension.encrypt",
+                    "group": "GPG"
+                },
+                {
+                    "when": "editorTextFocus && editorHasSelection",
+                    "command": "extension.decrypt",
+                    "group": "GPG"
+                }
+            ]
+        }
     },
     "scripts": {
         "postinstall": "node ./node_modules/vscode/bin/install",
