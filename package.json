@@ -53,16 +53,27 @@
         "menus": {
             "editor/context": [
                 {
-                    "when": "editorTextFocus && editorHasSelection",
+                    "when": "editorTextFocus && editorHasSelection && config.gpg.showEditorContextMenus",
                     "command": "extension.encrypt",
-                    "group": "GPG"
+                    "group": "GPG@7"
                 },
                 {
-                    "when": "editorTextFocus && editorHasSelection",
+                    "when": "editorTextFocus && editorHasSelection && config.gpg.showEditorContextMenus",
                     "command": "extension.decrypt",
-                    "group": "GPG"
+                    "group": "GPG@7"
                 }
             ]
+        },
+        "configuration": {
+            "type": "object",
+            "title": "GPG Configuration",
+            "properties": {
+                "gpg.showEditorContextMenus": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show editor context menus."
+                }
+            }
         }
     },
     "scripts": {
