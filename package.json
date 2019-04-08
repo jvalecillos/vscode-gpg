@@ -2,7 +2,7 @@
     "name": "gpg",
     "displayName": "GPG",
     "description": "GPG Encrypter/Decrypter",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "publisher": "jvalecillos",
     "author": {
         "name": "Jose Valecillos"
@@ -39,13 +39,42 @@
         "commands": [
             {
                 "command": "extension.encrypt",
-                "title": "GPG: Encrypt"
+                "title": "Encrypt",
+                "category": "GPG",
+                "when": "editorHasSelection"
             },
             {
                 "command": "extension.decrypt",
-                "title": "GPG: Decrypt"
+                "title": "Decrypt",
+                "category": "GPG",
+                "when": "editorHasSelection"
             }
-        ]
+        ],
+        "menus": {
+            "editor/context": [
+                {
+                    "when": "editorTextFocus && editorHasSelection && config.gpg.showEditorContextMenus",
+                    "command": "extension.encrypt",
+                    "group": "GPG@7"
+                },
+                {
+                    "when": "editorTextFocus && editorHasSelection && config.gpg.showEditorContextMenus",
+                    "command": "extension.decrypt",
+                    "group": "GPG@7"
+                }
+            ]
+        },
+        "configuration": {
+            "type": "object",
+            "title": "GPG Configuration",
+            "properties": {
+                "gpg.showEditorContextMenus": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show editor context menus."
+                }
+            }
+        }
     },
     "scripts": {
         "postinstall": "node ./node_modules/vscode/bin/install",
@@ -54,9 +83,9 @@
     "devDependencies": {
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
-        "eslint": "^4.11.0",
+        "eslint": "^5.15.3",
         "typescript": "^2.6.1",
-        "vscode": "^1.1.18"
+        "vscode": "^1.1.33"
     },
     "dependencies": {
         "gpg": "^0.6.0",

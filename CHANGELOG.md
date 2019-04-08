@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.0.5]
+
+- Updating dependencies.
+- Added context menus and conditions.
+- Adding configuration for editor context menus.
+
 ## [0.0.4]
 
 - Updating dependencies.
