@@ -39,11 +39,35 @@ function activate(context) {
     let decDisposable = vscode.commands.registerTextEditorCommand('extension.decrypt', editor => {
         let selection = editor.selection;
         let text = editor.document.getText(selection);
-        vscode.window.showInputBox({
-            prompt: 'Provide your passphrase',
-            placeHolder: 'My passphrase',
-            password: true,
-            validateInput: value => (value.length == 0) ? "Passphrase cannot be empty" : null
+
+        new Promise(function (resolve, reject) {
+            // Getting passphrases from configuration as an object "email" =>""passphrase"
+            /**
+             * @type {{email: string, description: string, passphrase: string}[]} passphrases
+            */
+            let passphrases = vscode.workspace.getConfiguration('gpg').get('passphrases');
+
+            let options = passphrases.map(currentValue => ({
+                label: `<${currentValue.email}>`,
+                description: currentValue.description ? `(${currentValue.description})` : '',
+                passphrase: currentValue.passphrase,
+            }));
+
+            if (options && options.length) {
+                vscode.window.showQuickPick(options, { placeHolder: "Select stored passphrase" }).then(selected => {
+                    selected ? resolve(selected.passphrase) : reject("no stored passphrase was selected")
+                });
+            } else {
+                reject("there are no stored passphrases");
+            }
+        }).catch(() => {
+            // Default behaviour ask for the passphrase
+            return vscode.window.showInputBox({
+                prompt: 'Provide your passphrase',
+                placeHolder: 'My passphrase',
+                password: true,
+                validateInput: value => (value.length == 0) ? "Passphrase cannot be empty" : null
+            });
         }).then(
             passphrase => {
                 if (passphrase === undefined || passphrase.length === 0) {
