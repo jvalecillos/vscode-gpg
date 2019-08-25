@@ -2,7 +2,7 @@
     "name": "gpg",
     "displayName": "GPG",
     "description": "GPG Encrypter/Decrypter",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "publisher": "jvalecillos",
     "author": {
         "name": "Jose Valecillos"
