@@ -2,7 +2,7 @@
     "name": "gpg",
     "displayName": "GPG",
     "description": "GPG Encrypter/Decrypter",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "publisher": "jvalecillos",
     "author": {
         "name": "Jose Valecillos"
@@ -72,6 +72,35 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Show editor context menus."
+                },
+                "gpg.passphrases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/passphrase"
+                    }
+                },
+                "definitions": {
+                    "passphrase": {
+                        "type": "object",
+                        "required": [
+                            "email",
+                            "passphrase"
+                        ],
+                        "properties": {
+                            "email": {
+                                "type": "string",
+                                "description": "Email linked to the GPG key."
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Optional description for the GPG key."
+                            },
+                            "passphrase": {
+                                "type": "string",
+                                "description": "Passphrase for the GPG Key."
+                            }
+                        }
+                    }
                 }
             }
         }
