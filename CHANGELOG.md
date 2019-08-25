@@ -3,7 +3,7 @@
 ## [0.0.6]
 
 - Updating dependencies.
-- Storing GPG passphrases in config, closing #4.
+- Storing GPG passphrases in config.
 
 Storing GPG passphrases in config
 
