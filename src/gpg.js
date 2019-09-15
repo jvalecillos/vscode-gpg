@@ -110,7 +110,7 @@ function parseKeys(stdout) {
     // Flatten object to array of objects
     // More verbose than Object.keys(result).map(k => result[k]); yet more efficient
     let output = [];
-    for(let k in result) {
+    for (let k in result) {
         if (result.hasOwnProperty(k)) {
             output.push(result[k]);
         }
@@ -192,9 +192,48 @@ function decrypt(text, passphrase) {
     });
 }
 
+/**
+ * Encrypt source file in dest file path
+ *
+ * @param {string} source
+ * @param {string} dest
+ * @param {string} recipientID
+ * @param {boolean=} armored
+ * @returns {Promise<String>} returns a promise with encrypted file path
+ */
+function encryptFile(source, dest, recipientID, armored = true) {
+
+    let args = [
+        '--encrypt',
+        '--trust-model', 'always',
+        '--recipient', recipientID,
+        '--trust-model', 'always' // so we don't get "no assurance this key belongs to the given user"
+    ];
+
+    if (armored) {
+        args.push('--armor');
+    }
+
+    return new Promise(function (resolve, reject) {
+        gpg.callStreaming(source, dest, args,
+            /**
+             * @param {Error} err
+             */
+            function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(dest);
+                }
+            });
+
+    });
+}
+
 // export the module
 module.exports = {
     listKeys: listKeys,
     encrypt: encrypt,
-    decrypt: decrypt
+    decrypt: decrypt,
+    encryptFile: encryptFile
 };

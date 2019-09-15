@@ -32,7 +32,8 @@
     ],
     "activationEvents": [
         "onCommand:extension.encrypt",
-        "onCommand:extension.decrypt"
+        "onCommand:extension.decrypt",
+        "onCommand:extension.armored"
     ],
     "main": "./src/extension",
     "contributes": {
@@ -48,6 +49,11 @@
                 "title": "Decrypt",
                 "category": "GPG",
                 "when": "editorHasSelection"
+            },
+            {
+                "command": "extension.armored",
+                "title": "Encrypt armored",
+                "category": "GPG"
             }
         ],
         "menus": {
@@ -60,6 +66,13 @@
                 {
                     "when": "editorTextFocus && editorHasSelection && config.gpg.showEditorContextMenus",
                     "command": "extension.decrypt",
+                    "group": "GPG@7"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "when": "sideBarFocus && activeViewlet == 'workbench.view.explorer'",
+                    "command": "extension.armored",
                     "group": "GPG@7"
                 }
             ]
