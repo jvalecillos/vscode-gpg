@@ -5,6 +5,9 @@ const gpg = require('./gpg.js');
 
 const fs = require('fs');
 
+/**
+ * @param {vscode.ExtensionContext} context
+ */
 function activate(context) {
 
     // Encrypt command
@@ -88,10 +91,12 @@ function activate(context) {
         );
     });
 
+    let encryptArmoredCommand = vscode.commands.registerCommand('extension.armored', encryptArmored);
+
     // register commands
     context.subscriptions.push(encDisposable);
     context.subscriptions.push(decDisposable);
-    context.subscriptions.push(armored());
+    context.subscriptions.push(encryptArmoredCommand);
 }
 exports.activate = activate;
 
@@ -100,34 +105,62 @@ function deactivate() {
 }
 exports.deactivate = deactivate;
 
-function armored() {
-    return vscode.commands.registerCommand('extension.armored', function (uri) {
+/**
+ * Encrypt armored file command
+ *
+ * @param {vscode.Uri} uri
+ */
+function encryptArmored(uri) {
 
-        let inputFilePath = uri.fsPath;
+    let inputFilePath = uri.fsPath;
 
-        let destFilePath = inputFilePath + '.gpg.asc';
+    let destFilePath = inputFilePath + '.gpg.asc';
 
-        gpg.listKeys().then(
-            publicKeys => publicKeys.map(
-                /** @param {gpg.PublicKey} currentValue */
-                currentValue => ({
-                    label: `<${currentValue.email}>`,
-                    description: `(${currentValue.key_id})`,
-                    detail: currentValue.name,
-                    key_id: currentValue.key_id,
-                    email: currentValue.email,
-                })
-            )
-        ).then(
-            options => vscode.window.showQuickPick(options, { placeHolder: "Select recipient" })
-        ).then(
-            /** @param {{email: string}} selected gpg key option */
-            selected => gpg.encryptFile(inputFilePath, destFilePath, selected.email)
-        ).then(resultFile => {
-            if (resultFile && fs.existsSync(resultFile)) {
-                vscode.window.showTextDocument(vscode.Uri.file(resultFile));
-                vscode.window.setStatusBarMessage('GPG Encrypted!', 2000);
-            }
-        }).catch(err => console.error(err));
-    });
+    new Promise(function (resolve, reject) {
+
+        if (!inputFilePath || !fs.existsSync(inputFilePath)) {
+            vscode.window.showErrorMessage('Invalid file');
+            reject(new Error('invalid file path: ' + inputFilePath));
+            return;
+        }
+
+        if (fs.existsSync(destFilePath)) {
+            vscode.window
+                .showInformationMessage('Do you want to override ' + destFilePath, ...['Yes', 'No'])
+                .then(value => {
+                    if (value != 'Yes') {
+                        reject('Selected not to override file');
+                    } else {
+                        resolve(destFilePath);
+                    }
+                });
+        } else {
+            resolve(destFilePath);
+        }
+    }).then(result => {
+        if (result) {
+            return gpg.listKeys()
+        }
+    }).then(
+        publicKeys => publicKeys.map(
+            /** @param {gpg.PublicKey} currentValue */
+            currentValue => ({
+                label: `<${currentValue.email}>`,
+                description: `(${currentValue.key_id})`,
+                detail: currentValue.name,
+                key_id: currentValue.key_id,
+                email: currentValue.email,
+            })
+        )
+    ).then(
+        options => vscode.window.showQuickPick(options, { placeHolder: "Select recipient" })
+    ).then(
+        /** @param {{email: string}} selected gpg key option */
+        selected => gpg.encryptFile(inputFilePath, destFilePath, selected.email)
+    ).then(resultFile => {
+        if (resultFile && fs.existsSync(resultFile)) {
+            vscode.window.showTextDocument(vscode.Uri.file(resultFile));
+            vscode.window.setStatusBarMessage('GPG Encrypted!', 2000);
+        }
+    }).catch(err => console.error(err));
 }
