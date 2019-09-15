@@ -114,7 +114,8 @@ function encryptArmored(uri) {
 
     let inputFilePath = uri.fsPath;
 
-    let destFilePath = inputFilePath + '.gpg.asc';
+    let suffix = vscode.workspace.getConfiguration('gpg').get('encryptedFileSuffix');
+    let destFilePath = `${inputFilePath}.${suffix}`;
 
     new Promise(function (resolve, reject) {
 

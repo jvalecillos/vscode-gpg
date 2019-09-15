@@ -86,12 +86,6 @@
                     "default": true,
                     "description": "Show editor context menus."
                 },
-                "gpg.passphrases": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/passphrase"
-                    }
-                },
                 "definitions": {
                     "passphrase": {
                         "type": "object",
@@ -114,6 +108,17 @@
                             }
                         }
                     }
+                },
+                "gpg.passphrases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/passphrase"
+                    }
+                },
+                "gpg.encryptedFileSuffix": {
+                    "type": "string",
+                    "default": "gpg.asc",
+                    "description": "Suffix for encrypted armored files."
                 }
             }
         }
