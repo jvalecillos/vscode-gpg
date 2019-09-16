@@ -91,7 +91,7 @@ function activate(context) {
         );
     });
 
-    let encryptArmoredCommand = vscode.commands.registerCommand('extension.armored', encryptArmored);
+    let encryptArmoredCommand = vscode.commands.registerCommand('extension.armor', encryptArmored);
 
     // register commands
     context.subscriptions.push(encDisposable);

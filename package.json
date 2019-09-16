@@ -33,7 +33,7 @@
     "activationEvents": [
         "onCommand:extension.encrypt",
         "onCommand:extension.decrypt",
-        "onCommand:extension.armored"
+        "onCommand:extension.armor"
     ],
     "main": "./src/extension",
     "contributes": {
@@ -51,7 +51,7 @@
                 "when": "editorHasSelection"
             },
             {
-                "command": "extension.armored",
+                "command": "extension.armor",
                 "title": "Encrypt armored",
                 "category": "GPG"
             }
@@ -72,7 +72,7 @@
             "explorer/context": [
                 {
                     "when": "sideBarFocus && activeViewlet == 'workbench.view.explorer'",
-                    "command": "extension.armored",
+                    "command": "extension.armor",
                     "group": "GPG@7"
                 }
             ]
