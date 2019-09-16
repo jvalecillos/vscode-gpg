@@ -117,7 +117,7 @@
                 },
                 "gpg.encryptedFileSuffix": {
                     "type": "string",
-                    "default": "gpg.asc",
+                    "default": "asc",
                     "description": "Suffix for encrypted armored files."
                 }
             }
