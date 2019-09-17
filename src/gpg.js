@@ -162,7 +162,7 @@ function decrypt(text, passphrase) {
         tmp.file(function _tempFileCreated(err, filePath, fd, cleanupCallback) {
             if (err) reject(err);
 
-            // Decrytion parametersa
+            // Decrypt parameters
             let args = [
                 '--batch',
                 '--passphrase-fd', '0', // Passing passphrase in stdin
@@ -226,7 +226,44 @@ function encryptFile(source, dest, recipientID, armored = true) {
                     resolve(dest);
                 }
             });
+    });
+}
 
+/**
+ * Decrypt source file in dest file path
+ *
+ * @param {string} source
+ * @param {string} dest
+ * @param {string} passphrase
+ * @returns {Promise<String>} returns a promise with decrypted file path
+ */
+function decryptFile(source, dest, passphrase) {
+
+    // Decrypt parameters
+    let args = [
+        '--batch',
+        '--passphrase-fd', '0', // Passing passphrase in stdin
+        '--pinentry-mode', 'loopback',
+        '--no-tty',
+        '--quiet',
+        '--output', dest, // Output file
+        '--decrypt',
+        source, // Input encrypted file
+    ];
+
+    return new Promise(function (resolve, reject) {
+        // Decrypt call
+        gpg.call(passphrase, args,
+            /**
+             * @param {Error} err
+             */
+            function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(dest);
+                }
+            });
     });
 }
 
@@ -235,5 +272,6 @@ module.exports = {
     listKeys: listKeys,
     encrypt: encrypt,
     decrypt: decrypt,
-    encryptFile: encryptFile
+    encryptFile: encryptFile,
+    decryptFile: decryptFile,
 };

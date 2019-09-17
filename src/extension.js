@@ -78,7 +78,7 @@ function activate(context) {
                 if (passphrase === undefined || passphrase.length === 0) {
                     // Hitting Enter gets to here, which is not expected
                     vscode.window.setStatusBarMessage('No passphrase provided', 2000);
-                    return Promise.reject("No passphrase provided")
+                    return Promise.reject("no passphrase provided")
                 }
                 return gpg.decrypt(text, passphrase)
             }
@@ -92,11 +92,13 @@ function activate(context) {
     });
 
     let encryptArmoredCommand = vscode.commands.registerCommand('extension.armor', encryptArmored);
+    let decryptFileCommand = vscode.commands.registerCommand('extension.dearmor', decryptFile);
 
     // register commands
     context.subscriptions.push(encDisposable);
     context.subscriptions.push(decDisposable);
     context.subscriptions.push(encryptArmoredCommand);
+    context.subscriptions.push(decryptFileCommand);
 }
 exports.activate = activate;
 
@@ -130,7 +132,7 @@ function encryptArmored(uri) {
                 .showInformationMessage('Do you want to override ' + destFilePath, ...['Yes', 'No'])
                 .then(value => {
                     if (value != 'Yes') {
-                        reject('Selected not to override file');
+                        reject('selected not to override file');
                     } else {
                         resolve(destFilePath);
                     }
@@ -138,11 +140,9 @@ function encryptArmored(uri) {
         } else {
             resolve(destFilePath);
         }
-    }).then(result => {
-        if (result) {
-            return gpg.listKeys()
-        }
     }).then(
+        () => gpg.listKeys()
+    ).then(
         publicKeys => publicKeys.map(
             /** @param {gpg.PublicKey} currentValue */
             currentValue => ({
@@ -163,5 +163,89 @@ function encryptArmored(uri) {
             vscode.window.showTextDocument(vscode.Uri.file(resultFile));
             vscode.window.setStatusBarMessage('GPG Encrypted!', 2000);
         }
-    }).catch(err => console.error(err));
+    }).catch(err => console.error("unable to encrypt file", err));
+}
+
+/**
+ * Decrypt file command
+ *
+ * @param {vscode.Uri} uri
+ */
+function decryptFile(uri) {
+
+    let inputFilePath = uri.fsPath;
+
+    // Replace extension
+    let destFilePath = inputFilePath.replace(/(\.gpg)?(\.asc)?$/g, '');
+
+    //Checking if destination file already exists
+    new Promise(function (resolve, reject) {
+
+        if (!inputFilePath || !fs.existsSync(inputFilePath)) {
+            vscode.window.showErrorMessage('Invalid file');
+            reject(new Error('invalid file path: ' + inputFilePath));
+            return;
+        }
+
+        if (fs.existsSync(destFilePath)) {
+            vscode.window
+                .showInformationMessage('Do you want to override ' + destFilePath, ...['Yes', 'No'])
+                .then(value => {
+                    if (value != 'Yes') {
+                        reject('Selected not to override file');
+                    } else {
+                        resolve(destFilePath);
+                    }
+                });
+        } else {
+            resolve(destFilePath);
+        }
+    }).then(
+        () => new Promise(function (resolve, reject) {
+            // Getting passphrases from configuration as an object "email" =>""passphrase"
+            /**
+             * @type {{email: string, description: string, passphrase: string}[]} passphrases
+            */
+            let passphrases = vscode.workspace.getConfiguration('gpg').get('passphrases');
+
+            let options = passphrases.map(currentValue => ({
+                label: `<${currentValue.email}>`,
+                description: currentValue.description ? `(${currentValue.description})` : '',
+                passphrase: currentValue.passphrase,
+            }));
+
+            if (options && options.length) {
+                vscode.window.showQuickPick(options, { placeHolder: "Select stored passphrase" }).then(selected => {
+                    selected ? resolve(selected.passphrase) : reject("no stored passphrase was selected")
+                });
+            } else {
+                reject("there are no stored passphrases");
+            }
+        }).catch(() => {
+            // Default behaviour ask for the passphrase
+            return vscode.window.showInputBox({
+                prompt: 'Provide your passphrase',
+                placeHolder: 'My passphrase',
+                password: true,
+                validateInput: value => (value.length == 0) ? "Passphrase cannot be empty" : null
+            });
+        })
+    ).then(
+        passphrase => {
+            if (passphrase === undefined || passphrase.length === 0) {
+                // Hitting Enter gets to here, which is not expected
+                vscode.window.setStatusBarMessage('No passphrase provided', 2000);
+                return Promise.reject("no passphrase provided")
+            }
+            return gpg.decryptFile(inputFilePath, destFilePath, passphrase);
+        }
+    ).then(
+        resultFile => {
+            if (resultFile && fs.existsSync(resultFile)) {
+                vscode.window.showTextDocument(vscode.Uri.file(resultFile));
+                vscode.window.setStatusBarMessage('GPG Decrypted!', 2000);
+            }
+        },
+        error => console.error("unable to decrypt file", error)
+    );
 }

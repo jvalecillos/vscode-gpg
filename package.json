@@ -33,7 +33,8 @@
     "activationEvents": [
         "onCommand:extension.encrypt",
         "onCommand:extension.decrypt",
-        "onCommand:extension.armor"
+        "onCommand:extension.armor",
+        "onCommand:extension.dearmor"
     ],
     "main": "./src/extension",
     "contributes": {
@@ -54,6 +55,11 @@
                 "command": "extension.armor",
                 "title": "Encrypt armored",
                 "category": "GPG"
+            },
+            {
+                "command": "extension.dearmor",
+                "title": "Decrypt armored",
+                "category": "GPG"
             }
         ],
         "menus": {
@@ -73,6 +79,11 @@
                 {
                     "when": "sideBarFocus && activeViewlet == 'workbench.view.explorer'",
                     "command": "extension.armor",
+                    "group": "GPG@7"
+                },
+                {
+                    "when": "sideBarFocus && activeViewlet == 'workbench.view.explorer' && resourceExtname =~ /(\\.asc|\\.gpg)$/",
+                    "command": "extension.dearmor",
                     "group": "GPG@7"
                 }
             ]
