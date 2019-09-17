@@ -11,7 +11,7 @@ const fs = require('fs');
 function activate(context) {
 
     // Encrypt command
-    let encDisposable = vscode.commands.registerTextEditorCommand('extension.encrypt', function (textEditor) {
+    let encDisposable = vscode.commands.registerTextEditorCommand('extension.encryptSelection', function (textEditor) {
 
         let selection = textEditor.selection;
         let text = textEditor.document.getText(selection);
@@ -41,7 +41,7 @@ function activate(context) {
     });
 
     // Decrypt command
-    let decDisposable = vscode.commands.registerTextEditorCommand('extension.decrypt', editor => {
+    let decDisposable = vscode.commands.registerTextEditorCommand('extension.decryptSelection', editor => {
         let selection = editor.selection;
         let text = editor.document.getText(selection);
 
@@ -91,8 +91,8 @@ function activate(context) {
         );
     });
 
-    let encryptArmoredCommand = vscode.commands.registerCommand('extension.armor', encryptArmored);
-    let decryptFileCommand = vscode.commands.registerCommand('extension.dearmor', decryptFile);
+    let encryptArmoredCommand = vscode.commands.registerCommand('extension.encryptArmoredFile', encryptArmored);
+    let decryptFileCommand = vscode.commands.registerCommand('extension.decryptFile', decryptFile);
 
     // register commands
     context.subscriptions.push(encDisposable);

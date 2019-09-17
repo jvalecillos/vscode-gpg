@@ -31,34 +31,34 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.encrypt",
-        "onCommand:extension.decrypt",
-        "onCommand:extension.armor",
-        "onCommand:extension.dearmor"
+        "onCommand:extension.encryptSelection",
+        "onCommand:extension.decryptSelection",
+        "onCommand:extension.encryptArmoredFile",
+        "onCommand:extension.decryptFile"
     ],
     "main": "./src/extension",
     "contributes": {
         "commands": [
             {
-                "command": "extension.encrypt",
-                "title": "Encrypt",
+                "command": "extension.encryptSelection",
+                "title": "Encrypt Selection",
                 "category": "GPG",
                 "when": "editorHasSelection"
             },
             {
-                "command": "extension.decrypt",
-                "title": "Decrypt",
+                "command": "extension.decryptSelection",
+                "title": "Decrypt Selection",
                 "category": "GPG",
                 "when": "editorHasSelection"
             },
             {
-                "command": "extension.armor",
+                "command": "extension.encryptArmoredFile",
                 "title": "Encrypt armored",
                 "category": "GPG"
             },
             {
-                "command": "extension.dearmor",
-                "title": "Decrypt armored",
+                "command": "extension.decryptFile",
+                "title": "Decrypt",
                 "category": "GPG"
             }
         ],
@@ -66,24 +66,24 @@
             "editor/context": [
                 {
                     "when": "editorTextFocus && editorHasSelection && config.gpg.showEditorContextMenus",
-                    "command": "extension.encrypt",
+                    "command": "extension.encryptSelection",
                     "group": "GPG@7"
                 },
                 {
                     "when": "editorTextFocus && editorHasSelection && config.gpg.showEditorContextMenus",
-                    "command": "extension.decrypt",
+                    "command": "extension.decryptSelection",
                     "group": "GPG@7"
                 }
             ],
             "explorer/context": [
                 {
                     "when": "sideBarFocus && activeViewlet == 'workbench.view.explorer'",
-                    "command": "extension.armor",
+                    "command": "extension.encryptArmoredFile",
                     "group": "GPG@7"
                 },
                 {
                     "when": "sideBarFocus && activeViewlet == 'workbench.view.explorer' && resourceExtname =~ /(\\.asc|\\.gpg)$/",
-                    "command": "extension.dearmor",
+                    "command": "extension.decryptFile",
                     "group": "GPG@7"
                 }
             ]
