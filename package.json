@@ -53,16 +53,26 @@
             },
             {
                 "command": "extension.encryptArmoredFile",
-                "title": "Encrypt armored",
+                "title": "GPG: Encrypt armored file",
                 "category": "GPG"
             },
             {
                 "command": "extension.decryptFile",
-                "title": "Decrypt",
+                "title": "GPG: Decrypt file",
                 "category": "GPG"
             }
         ],
         "menus": {
+            "commandPalette": [
+                {
+                    "when": "false",
+                    "command": "extension.encryptArmoredFile"
+                },
+                {
+                    "when": "false",
+                    "command": "extension.decryptFile"
+                }
+            ],
             "editor/context": [
                 {
                     "when": "editorTextFocus && editorHasSelection && config.gpg.showEditorContextMenus",
