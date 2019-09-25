@@ -2,10 +2,11 @@
 const vscode = require('vscode');
 // GPG command wrapper
 const gpg = require('./gpg.js');
-
+// fs module for interacting with the file system
 const fs = require('fs');
 
 /**
+ * This method is called when the extension is activated
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
@@ -24,13 +25,16 @@ function activate(context) {
     context.subscriptions.push(encArmoredFileDisp);
     context.subscriptions.push(decFileDisp);
 }
-exports.activate = activate;
 
-// this method is called when your extension is deactivated
-function deactivate() {
+/**
+ * This method is called when your extension is deactivated
+ */
+function deactivate() {}
+
+module.exports = {
+	activate,
+	deactivate
 }
-exports.deactivate = deactivate;
-
 
 /**
  * Encrypt text selection command
@@ -42,26 +46,12 @@ function encryptSelection(textEditor) {
     let selection = textEditor.selection;
     let text = textEditor.document.getText(selection);
 
-    gpg.listKeys().then(
-        publicKeys => publicKeys.map(
-            /** @param {gpg.PublicKey} currentValue */
-            currentValue => ({
-                label: `<${currentValue.email}>`,
-                description: `(${currentValue.key_id})`,
-                detail: currentValue.name,
-                key_id: currentValue.key_id,
-                email: currentValue.email,
-            })
-        )
-    ).then(
-        options => vscode.window.showQuickPick(options, { placeHolder: "Select recipient" })
-    ).then(
+    getRecipient().then(
         /** @param {{email: string}} selected gpg key option */
         selected => gpg.encrypt(text, selected.email)
     ).then(encrypted => {
-
+        // Replace selection
         textEditor.edit(edit => edit.replace(selection, encrypted));
-
         vscode.window.setStatusBarMessage('GPG Encrypted!', 2000);
     }).catch(err => console.error(err));
 }
@@ -76,27 +66,7 @@ function decryptSelection(textEditor)
     let selection = textEditor.selection;
     let text = textEditor.document.getText(selection);
 
-    new Promise(function (resolve, reject) {
-        // Getting passphrases from configuration as an object "email" =>""passphrase"
-        /**
-         * @type {{email: string, description: string, passphrase: string}[]} passphrases
-        */
-        let passphrases = vscode.workspace.getConfiguration('gpg').get('passphrases');
-
-        let options = passphrases.map(currentValue => ({
-            label: `<${currentValue.email}>`,
-            description: currentValue.description ? `(${currentValue.description})` : '',
-            passphrase: currentValue.passphrase,
-        }));
-
-        if (options && options.length) {
-            vscode.window.showQuickPick(options, { placeHolder: "Select stored passphrase" }).then(selected => {
-                selected ? resolve(selected.passphrase) : reject("no stored passphrase was selected")
-            });
-        } else {
-            reject("there are no stored passphrases");
-        }
-    }).catch(() => {
+    getPassphrase().catch(() => {
         // Default behaviour ask for the passphrase
         return vscode.window.showInputBox({
             prompt: 'Provide your passphrase',
@@ -134,42 +104,8 @@ function encryptArmored(uri) {
     let suffix = vscode.workspace.getConfiguration('gpg').get('encryptedFileSuffix');
     let destFilePath = `${inputFilePath}.${suffix}`;
 
-    new Promise(function (resolve, reject) {
-
-        if (!inputFilePath || !fs.existsSync(inputFilePath)) {
-            vscode.window.showErrorMessage('Invalid file');
-            reject(new Error('invalid file path: ' + inputFilePath));
-            return;
-        }
-
-        if (fs.existsSync(destFilePath)) {
-            vscode.window
-                .showInformationMessage('Do you want to override ' + destFilePath, ...['Yes', 'No'])
-                .then(value => {
-                    if (value != 'Yes') {
-                        reject('selected not to override file');
-                    } else {
-                        resolve(destFilePath);
-                    }
-                });
-        } else {
-            resolve(destFilePath);
-        }
-    }).then(
-        () => gpg.listKeys()
-    ).then(
-        publicKeys => publicKeys.map(
-            /** @param {gpg.PublicKey} currentValue */
-            currentValue => ({
-                label: `<${currentValue.email}>`,
-                description: `(${currentValue.key_id})`,
-                detail: currentValue.name,
-                key_id: currentValue.key_id,
-                email: currentValue.email,
-            })
-        )
-    ).then(
-        options => vscode.window.showQuickPick(options, { placeHolder: "Select recipient" })
+    checkFile(inputFilePath, destFilePath).then(
+        () => getRecipient()
     ).then(
         /** @param {{email: string}} selected gpg key option */
         selected => gpg.encryptFile(inputFilePath, destFilePath, selected.email)
@@ -194,57 +130,8 @@ function decryptFile(uri) {
     let destFilePath = inputFilePath.replace(/(\.gpg)?(\.asc)?$/g, '');
 
     //Checking if destination file already exists
-    new Promise(function (resolve, reject) {
-
-        if (!inputFilePath || !fs.existsSync(inputFilePath)) {
-            vscode.window.showErrorMessage('Invalid file');
-            reject(new Error('invalid file path: ' + inputFilePath));
-            return;
-        }
-
-        if (fs.existsSync(destFilePath)) {
-            vscode.window
-                .showInformationMessage('Do you want to override ' + destFilePath, ...['Yes', 'No'])
-                .then(value => {
-                    if (value != 'Yes') {
-                        reject('Selected not to override file');
-                    } else {
-                        resolve(destFilePath);
-                    }
-                });
-        } else {
-            resolve(destFilePath);
-        }
-    }).then(
-        () => new Promise(function (resolve, reject) {
-            // Getting passphrases from configuration as an object "email" =>""passphrase"
-            /**
-             * @type {{email: string, description: string, passphrase: string}[]} passphrases
-            */
-            let passphrases = vscode.workspace.getConfiguration('gpg').get('passphrases');
-
-            let options = passphrases.map(currentValue => ({
-                label: `<${currentValue.email}>`,
-                description: currentValue.description ? `(${currentValue.description})` : '',
-                passphrase: currentValue.passphrase,
-            }));
-
-            if (options && options.length) {
-                vscode.window.showQuickPick(options, { placeHolder: "Select stored passphrase" }).then(selected => {
-                    selected ? resolve(selected.passphrase) : reject("no stored passphrase was selected")
-                });
-            } else {
-                reject("there are no stored passphrases");
-            }
-        }).catch(() => {
-            // Default behaviour ask for the passphrase
-            return vscode.window.showInputBox({
-                prompt: 'Provide your passphrase',
-                placeHolder: 'My passphrase',
-                password: true,
-                validateInput: value => (value.length == 0) ? "Passphrase cannot be empty" : null
-            });
-        })
+    checkFile(inputFilePath, destFilePath).then(
+        () => getPassphrase()
     ).then(
         passphrase => {
             if (passphrase === undefined || passphrase.length === 0) {
@@ -262,5 +149,96 @@ function decryptFile(uri) {
             }
         },
         error => console.error("unable to decrypt file", error)
+    );
+}
+
+/**
+ * Check input and destination file existence
+ *
+ * @param {string} inputFilePath
+ * @param {string} destFilePath
+ * @returns {Promise<string>}
+ */
+function checkFile(inputFilePath, destFilePath) {
+    return new Promise(function (resolve, reject) {
+
+        if (!inputFilePath || !fs.existsSync(inputFilePath)) {
+            vscode.window.showErrorMessage('Invalid file');
+            reject(new Error('invalid file path: ' + inputFilePath));
+            return;
+        }
+
+        if (fs.existsSync(destFilePath)) {
+            vscode.window
+                .showInformationMessage('Do you want to override ' + destFilePath, ...['Yes', 'No'])
+                .then(value => {
+                    if (value != 'Yes') {
+                        reject('selected not to override file');
+                    } else {
+                        resolve(destFilePath);
+                    }
+                });
+        } else {
+            resolve(destFilePath);
+        }
+    });
+}
+
+/**
+ * Try to get a passphrase from the customer
+ *
+ * @returns {Promise<string>}
+ */
+function getPassphrase() {
+    return new Promise(function (resolve, reject) {
+        // Getting passphrases from configuration as an object "email" =>""passphrase"
+        /**
+         * @type {{email: string, description: string, passphrase: string}[]} passphrases
+        */
+        let passphrases = vscode.workspace.getConfiguration('gpg').get('passphrases');
+
+        let options = passphrases.map(currentValue => ({
+            label: `<${currentValue.email}>`,
+            description: currentValue.description ? `(${currentValue.description})` : '',
+            passphrase: currentValue.passphrase,
+        }));
+
+        if (options && options.length) {
+            vscode.window.showQuickPick(options, { placeHolder: "Select stored passphrase" }).then(selected => {
+                selected ? resolve(selected.passphrase) : reject("no stored passphrase was selected")
+            });
+        } else {
+            reject("there are no stored passphrases");
+        }
+    }).catch(() => {
+        // Default behaviour ask for the passphrase
+        return vscode.window.showInputBox({
+            prompt: 'Provide your passphrase',
+            placeHolder: 'My passphrase',
+            password: true,
+            validateInput: value => (value.length == 0) ? "Passphrase cannot be empty" : null
+        });
+    });
+}
+
+/**
+ * Get recipient selected from public keys in the system
+ *
+ * @returns {Promise<{label: string; description: string; detail: string; key_id: string; email: string;}>}
+ */
+function getRecipient() {
+    return gpg.listKeys().then(
+        publicKeys => publicKeys.map(
+            /** @param {gpg.PublicKey} currentValue */
+            currentValue => ({
+                label: `<${currentValue.email}>`,
+                description: `(${currentValue.key_id})`,
+                detail: currentValue.name,
+                key_id: currentValue.key_id,
+                email: currentValue.email,
+            })
+        )
+    ).then(
+        options => vscode.window.showQuickPick(options, { placeHolder: "Select recipient" })
     );
 }
