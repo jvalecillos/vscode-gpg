@@ -1,11 +1,16 @@
 # Change Log
 
+## [0.1.0]
+
+- Updating dependencies.
+- Implementing encrypt and decrypt file commands.
+- Refactoring and cleaning up.
+
+
 ## [0.0.6]
 
 - Updating dependencies.
 - Storing GPG passphrases in config.
-
-Storing GPG passphrases in config
 
 ## [0.0.5]
 
