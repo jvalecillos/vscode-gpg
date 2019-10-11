@@ -107,8 +107,10 @@
                     "default": true,
                     "description": "Show editor context menus."
                 },
-                "definitions": {
-                    "passphrase": {
+                "gpg.passphrases": {
+                    "type": "array",
+                    "scope": "application",
+                    "items": {
                         "type": "object",
                         "required": [
                             "email",
@@ -128,12 +130,6 @@
                                 "description": "Passphrase for the GPG Key."
                             }
                         }
-                    }
-                },
-                "gpg.passphrases": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/passphrase"
                     }
                 },
                 "gpg.encryptedFileSuffix": {
