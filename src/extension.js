@@ -46,6 +46,12 @@ function encryptSelection(textEditor) {
     let selection = textEditor.selection;
     let text = textEditor.document.getText(selection);
 
+    if (!text || text.length === 0) {
+        vscode.window.setStatusBarMessage('No text selected', 2000);
+        console.warn("zero lenght selection");
+        return;
+    }
+
     getRecipient().then(
         /** @param {{email: string}} selected gpg key option */
         selected => gpg.encrypt(text, selected.email)
@@ -65,6 +71,12 @@ function decryptSelection(textEditor)
 {
     let selection = textEditor.selection;
     let text = textEditor.document.getText(selection);
+
+    if (!text || text.length === 0) {
+        vscode.window.setStatusBarMessage('No text selected', 2000);
+        console.warn("zero lenght selection");
+        return;
+    }
 
     getPassphrase().catch(() => {
         // Default behaviour ask for the passphrase
