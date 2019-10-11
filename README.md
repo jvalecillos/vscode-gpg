@@ -8,6 +8,7 @@ Extension for using GnuPG for text encryption/decryption on VSCode.
 - Text encryption producing ASCII-armored output (ready for sharing).
 - Ciphertext decryption.
 - Storing passphrases in local settings.
+- Encrypting and decrypting files or selected text.
 
 ![Encryption and Decrytion Demo](images/demo.gif)
 
@@ -32,7 +33,8 @@ Extension for using GnuPG for text encryption/decryption on VSCode.
   }
   ```
 - The stored passphrase will be listed to chose to use for decryption.
-  ![Stored Passphrase demo](images/stored_pass.gif)
+![Stored Passphrase demo](images/stored_pass.gif)
+
 > If no stored passphrase is chosen then the regular prompt will appear.
 
 ## Requirements

@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.1.1]
+
+- Validating zero lenght text selection.
+- Fixing configuation schema issue [#12](https://github.com/jvalecillos/vscode-gpg/issues/12).
+
 ## [0.1.0]
 
 - Updating dependencies.
@@ -21,7 +26,7 @@
 ## [0.0.4]
 
 - Updating dependencies.
-- Validating invalid passphrase, fixes #3.
+- Validating invalid passphrase, fixes [#3](https://github.com/jvalecillos/vscode-gpg/issues/3).
 - Annotations and closures refactoring.
 
 ## [0.0.3]
