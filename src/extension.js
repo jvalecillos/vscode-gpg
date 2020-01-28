@@ -47,8 +47,9 @@ function encryptSelection(textEditor) {
     let text = textEditor.document.getText(selection);
 
     if (!text || text.length === 0) {
+        console.warn("zero length selection");
         vscode.window.setStatusBarMessage('No text selected', 2000);
-        console.warn("zero lenght selection");
+        vscode.window.showWarningMessage("No text selected");
         return;
     }
 
@@ -73,8 +74,9 @@ function decryptSelection(textEditor)
     let text = textEditor.document.getText(selection);
 
     if (!text || text.length === 0) {
+        console.warn("zero length selection");
         vscode.window.setStatusBarMessage('No text selected', 2000);
-        console.warn("zero lenght selection");
+        vscode.window.showWarningMessage("No text selected");
         return;
     }
 
@@ -100,7 +102,10 @@ function decryptSelection(textEditor)
             textEditor.edit(editBuilder => editBuilder.replace(selection, decrypted));
             vscode.window.setStatusBarMessage('GPG Decrypted!', 2000);
         },
-        error => { console.error("unable to decrypt text", error) }
+        error => {
+            console.error("unable to decrypt text", error);
+            vscode.window.showErrorMessage(error.message || "unable to decrypt text");
+        }
     );
 }
 
@@ -126,7 +131,10 @@ function encryptArmored(uri) {
             vscode.window.showTextDocument(vscode.Uri.file(resultFile));
             vscode.window.setStatusBarMessage('GPG Encrypted!', 2000);
         }
-    }).catch(err => console.error("unable to encrypt file", err));
+    }).catch(error => {
+        console.error("unable to encrypt file", error);
+        vscode.window.showErrorMessage(error.message || "unable to encrypt file");
+    });
 }
 
 /**
@@ -160,7 +168,10 @@ function decryptFile(uri) {
                 vscode.window.setStatusBarMessage('GPG Decrypted!', 2000);
             }
         },
-        error => console.error("unable to decrypt file", error)
+        error => {
+            console.error("unable to decrypt file", error);
+            vscode.window.showErrorMessage(error.message || "unable to decrypt file");
+        }
     );
 }
 
