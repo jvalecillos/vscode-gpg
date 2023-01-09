@@ -267,6 +267,58 @@ function decryptFile(source, dest, passphrase) {
     });
 }
 
+/**
+ * validate clear-signed text
+ *
+ * @param {string} text
+ * @returns {Promise<boolean>} returns if is a valid signature
+ */
+function verifySignature(text) {
+
+    let args = [
+        '--trust-model', 'always' // so we don't get "no assurance this key belongs to the given user"
+    ];
+
+    return new Promise(function (resolve, reject) {
+
+        gpg.verifySignature(text, args, function (err, result) {
+            if (err) {
+                resolve(false);
+            } else {
+                resolve(result.toString().search(/good signature/i) > 0);
+            }
+        });
+
+    });
+}
+
+/**
+ * clear-sign a text for the given recipient (email address)
+ *
+ * @param {string} text
+ * @param {string} recipientID
+ * @returns {Promise<String>} returns a promise for a encrypted string
+ */
+function clearSign(text, recipientID) {
+
+    let args = [
+        '--default-key', recipientID,
+        '--trust-model', 'always' // so we don't get "no assurance this key belongs to the given user"
+    ];
+
+    return new Promise(function (resolve, reject) {
+
+        gpg.clearsign(text, args, function (err, result) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result.toString());
+            }
+        });
+
+    });
+}
+
 // export the module
 module.exports = {
     listKeys: listKeys,
@@ -274,4 +326,6 @@ module.exports = {
     decrypt: decrypt,
     encryptFile: encryptFile,
     decryptFile: decryptFile,
+    clearSign: clearSign,
+    verifySignature: verifySignature,
 };

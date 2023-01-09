@@ -18,12 +18,18 @@ function activate(context) {
     let encArmoredFileDisp = vscode.commands.registerCommand('extension.encryptArmoredFile', encryptArmored);
     // Decrypt file command
     let decFileDisp = vscode.commands.registerCommand('extension.decryptFile', decryptFile);
+    // Clear Sign Selection
+    let signSelectionDisp = vscode.commands.registerTextEditorCommand('extension.clearSignSelection', clearSignSelection);
+    // Validate Signed Selection
+    let validateSelectionSignDisp = vscode.commands.registerTextEditorCommand('extension.validateSelectionClearSign', validateSelectionClearSign);
 
     // register commands
     context.subscriptions.push(encSelectionDisp);
     context.subscriptions.push(decSelectionDisp);
     context.subscriptions.push(encArmoredFileDisp);
     context.subscriptions.push(decFileDisp);
+    context.subscriptions.push(signSelectionDisp);
+    context.subscriptions.push(validateSelectionSignDisp);
 }
 
 /**
@@ -264,4 +270,57 @@ function getRecipient() {
     ).then(
         options => vscode.window.showQuickPick(options, { placeHolder: "Select recipient" })
     );
+}
+
+/**
+ * Sign text selection command
+ *
+ * @param {vscode.TextEditor} textEditor
+ */
+function clearSignSelection(textEditor) {
+
+    let selection = textEditor.selection;
+    let text = textEditor.document.getText(selection);
+
+    if (!text || text.length === 0) {
+        console.warn("zero length selection");
+        vscode.window.setStatusBarMessage('No text selected', 2000);
+        vscode.window.showWarningMessage("No text selected");
+        return;
+    }
+
+    getRecipient().then(
+        /** @param {{email: string}} selected gpg key option */
+        selected => gpg.clearSign(text, selected.email)
+    ).then(encrypted => {
+        // Replace selection
+        textEditor.edit(edit => edit.replace(selection, encrypted));
+        vscode.window.setStatusBarMessage('GPG ClearSigned!', 2000);
+    }).catch(err => console.error(err));
+}
+
+/**
+ * Validate signature on text selection command
+ *
+ * @param {vscode.TextEditor} textEditor
+ */
+function validateSelectionClearSign(textEditor) {
+    let selection = textEditor.selection;
+    let text = textEditor.document.getText(selection);
+
+    if (!text || text.length === 0) {
+        console.warn("zero length selection");
+        vscode.window.setStatusBarMessage('No text selected', 2000);
+        vscode.window.showWarningMessage("No text selected");
+        return;
+    }
+
+    gpg.verifySignature(text).then(valid => {
+        if(valid) {
+            vscode.window.setStatusBarMessage('GPG Valid Signature!', 2000);
+        }else {
+            vscode.window.setStatusBarMessage('GPG INVALID Signature!', 5000);
+            vscode.window.showWarningMessage("INVALID Signature");
+        }
+    }).catch(err => console.error(err));
 }
