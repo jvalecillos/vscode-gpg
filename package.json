@@ -18,7 +18,7 @@
         "url": "https://github.com/jvalecillos/vscode-gpg/issues"
     },
     "engines": {
-        "vscode": "^1.17.0"
+        "vscode": "^1.64.0"
     },
     "keywords": [
         "gpg",
@@ -141,17 +141,17 @@
         }
     },
     "scripts": {
-        "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "node ./node_modules/vscode/bin/test",
         "version": "auto-changelog -t keepachangelog -p && git add CHANGELOG.md"
     },
     "devDependencies": {
         "@types/mocha": "^5.2.7",
         "@types/node": "^13.5.0",
+        "@types/vscode": "^1.64.0",
+        "@vscode/test-electron": "^2.2.3",
         "auto-changelog": "^1.16.2",
         "eslint": "^6.8.0",
-        "typescript": "^3.7.5",
-        "vscode": "^1.1.36"
+        "typescript": "^3.7.5"
     },
     "dependencies": {
         "fs": "0.0.1-security",
