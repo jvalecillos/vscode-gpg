@@ -141,7 +141,6 @@
         }
     },
     "scripts": {
-        "test": "node ./node_modules/vscode/bin/test",
         "version": "auto-changelog -t keepachangelog -p && git add CHANGELOG.md"
     },
     "devDependencies": {
