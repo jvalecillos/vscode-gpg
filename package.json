@@ -60,6 +60,18 @@
                 "command": "extension.decryptFile",
                 "title": "GPG: Decrypt file",
                 "category": "GPG"
+            },
+            {
+                "command": "extension.clearSignSelection",
+                "title": "Sign Selection (clear-sign)",
+                "category": "GPG",
+                "when": "editorHasSelection"
+            },
+            {
+                "command": "extension.validateSelectionClearSign",
+                "title": "Verify Selected Signature",
+                "category": "GPG",
+                "when": "editorHasSelection"
             }
         ],
         "menus": {
