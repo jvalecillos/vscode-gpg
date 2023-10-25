@@ -3,8 +3,6 @@
  * @author Jose Valecillos
  */
 const gpg = require('gpg');
-const tmp = require('tmp');
-const fs = require('fs')
 
 /**
  * Returns a list of public keys available for encryption
@@ -152,42 +150,16 @@ function encrypt(text, recipientID) {
  * Decrypt a text given the passphrase
  *
  * @param {string} text
- * @param {string} passphrase
  * @returns {Promise<String>} returns a promise for a decrypted string
  */
-function decrypt(text, passphrase) {
-
+function decrypt(text) {
     return new Promise(function (resolve, reject) {
-        // @ts-ignore
-        tmp.file(function _tempFileCreated(err, filePath, fd, cleanupCallback) {
-            if (err) reject(err);
-
-            // Decrypt parameters
-            let args = [
-                '--batch',
-                '--passphrase-fd', '0', // Passing passphrase in stdin
-                '--armor',
-                '--pinentry-mode', 'loopback',
-                '--no-tty',
-                '--quiet',
-                '--decrypt',
-                filePath
-            ];
-
-            fs.appendFile(filePath, text, function (err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    // Decrypt call
-                    gpg.call(passphrase, args, function (err, result) {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(result.toString());
-                        }
-                    });
-                }
-            });
+        gpg.decrypt(text, ['--decrypt'], function (err, result) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result.toString());
+            }
         });
     });
 }
