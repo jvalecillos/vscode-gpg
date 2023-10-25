@@ -86,24 +86,7 @@ function decryptSelection(textEditor)
         return;
     }
 
-    getPassphrase().catch(() => {
-        // Default behaviour ask for the passphrase
-        return vscode.window.showInputBox({
-            prompt: 'Provide your passphrase',
-            placeHolder: 'My passphrase',
-            password: true,
-            validateInput: value => (value.length == 0) ? "Passphrase cannot be empty" : null
-        });
-    }).then(
-        passphrase => {
-            if (passphrase === undefined || passphrase.length === 0) {
-                // Hitting Enter gets to here, which is not expected
-                vscode.window.setStatusBarMessage('No passphrase provided', 2000);
-                return Promise.reject("no passphrase provided")
-            }
-            return gpg.decrypt(text, passphrase)
-        }
-    ).then(
+    gpg.decrypt(text).then(
         decrypted => {
             textEditor.edit(editBuilder => editBuilder.replace(selection, decrypted));
             vscode.window.setStatusBarMessage('GPG Decrypted!', 2000);
